@@ -29,7 +29,7 @@ func init() {
 	if !found{
 		mysqlSchema = os.Getenv("heroku_schema")
 	}
-//mysql://b368541057be5f:2e45c4ad@eu-cdbr-west-01.cleardb.com/heroku_351c45cd2db46e7?reconnect=true
+
 	var err error
 	dataSource := fmt.Sprintf("%s:%s@tcp(%s)/%s", mysqlUser, mysqlPassword, mysqlHost, mysqlSchema)
 	UserClient, err = sql.Open("mysql", dataSource)
