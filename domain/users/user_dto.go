@@ -42,16 +42,15 @@ type User struct {
 }
 
 type ResponseUser struct {
-	Id        int64        `json:"id"`
-	FirstName string       `json:"firstName"`
-	LastName  string       `json:"lastName"`
-	Age       int          `json:"age"`
-	Gender    string       `json:"gender"`
-	Interests string       `json:"interests"`
-	City      string       `json:"city"`
-	Email     string       `json:"email"`
-	Token     string       `json:"token,omitempty"`
-	Friends   []UserFriend `json:"friends"`
+	Id        int64  `json:"id"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Age       int    `json:"age"`
+	Gender    string `json:"gender"`
+	Interests string `json:"interests"`
+	City      string `json:"city"`
+	Email     string `json:"email"`
+	Token     string `json:"token,omitempty"`
 }
 
 //SecurityUser используется при логине пользователя

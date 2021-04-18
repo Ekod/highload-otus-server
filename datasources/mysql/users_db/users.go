@@ -14,19 +14,19 @@ var (
 
 func init() {
 	mysqlHost, found := os.LookupEnv("mysql_host")
-	if !found{
+	if !found {
 		mysqlHost = os.Getenv("heroku_host")
 	}
 	mysqlPassword, found := os.LookupEnv("mysql_password")
-	if !found{
+	if !found {
 		mysqlPassword = os.Getenv("heroku_password")
 	}
 	mysqlUser, found := os.LookupEnv("mysql_user")
-	if !found{
+	if !found {
 		mysqlUser = os.Getenv("heroku_user")
 	}
 	mysqlSchema, found := os.LookupEnv("mysql_schema")
-	if !found{
+	if !found {
 		mysqlSchema = os.Getenv("heroku_schema")
 	}
 

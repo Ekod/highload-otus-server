@@ -71,10 +71,6 @@ func (s *userService) LoginUser(user *users.UserRequest) (map[string]interface{}
 		return nil, err
 	}
 
-	friends, err := users.UserRepository.GetFriends(foundUser.Id)
-	if err != nil {
-		return nil, err
-	}
 	responseUser := &users.ResponseUser{
 		FirstName: foundUser.FirstName,
 		LastName:  foundUser.LastName,
@@ -84,7 +80,6 @@ func (s *userService) LoginUser(user *users.UserRequest) (map[string]interface{}
 		Age:       foundUser.Age,
 		Gender:    foundUser.Gender,
 		Token:     token,
-		Friends:   friends,
 	}
 	responseData := response.Data("user", responseUser)
 	return responseData, nil
@@ -147,13 +142,6 @@ func (s *userService) GetCurrentUser(userId int64) (map[string]interface{}, *err
 	if err != nil {
 		return nil, err
 	}
-
-	friends, err := users.UserRepository.GetFriends(userId)
-	if err != nil {
-		return nil, err
-	}
-
-	user.Friends = friends
 
 	responseData := response.Data("user", user)
 
