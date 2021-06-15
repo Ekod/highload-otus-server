@@ -16,6 +16,11 @@ type UserFriend struct {
 	Email     string `json:"email"`
 }
 
+type SearchLikeUser struct {
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+}
+
 //UserRequest используется для регистрации пользователя
 type UserRequest struct {
 	FirstName string `json:"firstName"`

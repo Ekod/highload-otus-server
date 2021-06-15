@@ -17,7 +17,6 @@ func mapUrls() {
 		apiGroup.GET("/friends", middlewares.CheckToken, controllers.UserController.GetFriends)
 		apiGroup.POST("/make-friends", middlewares.CheckToken, controllers.UserController.MakeFriends)
 		apiGroup.DELETE("/remove-friend/:id", middlewares.CheckToken, controllers.UserController.RemoveFriend)
-
+		apiGroup.GET("/search-users", middlewares.CheckToken, controllers.UserController.GetUsersByFullName)
 	}
-
 }

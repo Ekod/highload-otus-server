@@ -18,14 +18,26 @@ type userServiceInterface interface {
 	GetFriends(int64) (map[string]interface{}, *errors.RestErr)
 	MakeFriends(int64, *users.UserFriend) (map[string]interface{}, *errors.RestErr)
 	RemoveFriend(int64, int64) (map[string]interface{}, *errors.RestErr)
+	GetUsersByFullName(string, string) (map[string]interface{}, *errors.RestErr)
+}
+
+func (s *userService) GetUsersByFullName(firstName, lastName string) (map[string]interface{}, *errors.RestErr) {
+	friendsList, err := users.UserRepository.GetUsersByFullName(firstName, lastName)
+	if err != nil {
+		return nil, err
+	}
+
+	responseData := response.Data("users", friendsList)
+
+	return responseData, nil
 }
 
 func (s *userService) RemoveFriend(userId int64, friendId int64) (map[string]interface{}, *errors.RestErr) {
-
 	err := users.UserRepository.RemoveFriend(userId, friendId)
 	if err != nil {
 		return nil, err
 	}
+
 	return nil, nil
 }
 
@@ -98,7 +110,7 @@ func (s *userService) RegisterUser(user *users.UserRequest) (map[string]interfac
 
 	user.Password = hp
 
-	userId, err := users.UserRepository.Save(user)
+	userId, err := users.UserRepository.SaveUser(user)
 	if err != nil {
 		return nil, err
 	}

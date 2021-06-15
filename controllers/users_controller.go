@@ -1,21 +1,20 @@
 package controllers
 
 import (
-	"net/http"
-	"strconv"
-
 	"github.com/Ekod/highload-otus/domain/users"
 	"github.com/Ekod/highload-otus/services"
 	"github.com/Ekod/highload-otus/utils/errors"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	"net/http"
+	"strconv"
 )
 
-var UserController userContrlInterface = &userController{}
+var UserController userControllerInterface = &userController{}
 
 type userController struct{}
 
-type userContrlInterface interface {
+type userControllerInterface interface {
 	LoginUser(c *gin.Context)
 	RegisterUser(c *gin.Context)
 	GetUsers(c *gin.Context)
@@ -23,6 +22,18 @@ type userContrlInterface interface {
 	GetFriends(c *gin.Context)
 	MakeFriends(c *gin.Context)
 	RemoveFriend(c *gin.Context)
+	GetUsersByFullName(c *gin.Context)
+}
+
+func (uc *userController) GetUsersByFullName(c *gin.Context) {
+	firstName := c.Query("firstName")
+	lastName := c.Query("lastName")
+	response, err := services.UserService.GetUsersByFullName(firstName, lastName)
+	if err != nil {
+		c.JSON(err.Status, err)
+		return
+	}
+	c.JSON(http.StatusOK, response)
 }
 
 func (uc *userController) RemoveFriend(c *gin.Context) {
@@ -86,6 +97,7 @@ func (uc *userController) RegisterUser(c *gin.Context) {
 func (uc *userController) GetUsers(c *gin.Context) {
 	response, err := services.UserService.GetUsers()
 	if err != nil {
+		log.Error(err)
 		c.JSON(err.Status, err)
 		return
 	}

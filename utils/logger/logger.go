@@ -7,11 +7,13 @@ import (
 )
 
 func init() {
-
+	file, err := os.OpenFile("logrus.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Info("Failed to log to file, using default stderr")
+	} else {
+		log.SetOutput(file)
+	}
 	log.SetFormatter(&log.JSONFormatter{})
-
-	log.SetOutput(os.Stdout)
-
 	log.SetLevel(log.StandardLogger().Level)
 }
 
