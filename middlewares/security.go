@@ -1,20 +1,18 @@
 package middlewares
 
 import (
-	"github.com/Ekod/highload-otus/services"
 	"github.com/Ekod/highload-otus/utils/errors"
 	"github.com/Ekod/highload-otus/utils/logger"
+	"github.com/Ekod/highload-otus/utils/security"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
 )
 
-const (
-	authorizationHeader = "Authorization"
-)
-
 //CheckToken проверяет наличие id пользователя в токене
 func CheckToken(c *gin.Context) {
+	authorizationHeader := "Authorization"
+
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
 		logger.LogErrorMessage("empty auth header")
@@ -32,7 +30,7 @@ func CheckToken(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, errors.NewUnauthorizedError("not authorized"))
 	}
 
-	userId, err := services.SecurityService.ParseToken(headerParts[1])
+	userId, err := security.ParseToken(headerParts[1])
 	if err != nil {
 		logger.LogErrorMessage(err.Message)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, "not authorized")

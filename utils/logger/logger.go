@@ -3,6 +3,8 @@ package logger
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"os"
 )
 
@@ -27,4 +29,23 @@ func LogErrorMessage(message string) {
 
 func LogInfo(message string) {
 	log.Info(fmt.Sprintf("%s.", message))
+}
+
+// New constructs a Sugared Logger that writes to stdout and
+// provides human-readable timestamps.
+func New(service string) (*zap.SugaredLogger, error) {
+	config := zap.NewProductionConfig()
+	config.OutputPaths = []string{"stdout"}
+	config.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	config.DisableStacktrace = true
+	config.InitialFields = map[string]any{
+		"service": service,
+	}
+
+	logger, err := config.Build()
+	if err != nil {
+		return nil, err
+	}
+
+	return logger.Sugar(), nil
 }

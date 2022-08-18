@@ -33,19 +33,6 @@ type UserRequest struct {
 	Password  string `json:"password"`
 }
 
-//User используется для отдачи данных о пользователе
-type User struct {
-	Id        int64  `json:"id"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Age       int    `json:"age"`
-	Gender    string `json:"gender"`
-	Interests string `json:"interests"`
-	City      string `json:"city"`
-	Email     string `json:"email"`
-	Password  string `json:"password,omitempty"`
-}
-
 type ResponseUser struct {
 	Id        int64  `json:"id"`
 	FirstName string `json:"firstName"`

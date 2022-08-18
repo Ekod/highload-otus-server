@@ -5,14 +5,14 @@ import "net/http"
 type RestErr struct {
 	Message string `json:"message"`
 	Status  int    `json:"status"`
-	Error   string `json:"error"`
+	Err   string `json:"error"`
 }
 
 func NewBadRequestError(message string) *RestErr {
 	return &RestErr{
 		Message: message,
 		Status:  http.StatusBadRequest,
-		Error:   "bad_request",
+		Err:   "bad_request",
 	}
 }
 
@@ -20,7 +20,7 @@ func NewNotFoundError(message string) *RestErr {
 	return &RestErr{
 		Message: message,
 		Status:  http.StatusNotFound,
-		Error:   "not_found",
+		Err:   "not_found",
 	}
 }
 
@@ -28,7 +28,7 @@ func NewInternalServerError(message string) *RestErr {
 	return &RestErr{
 		Message: message,
 		Status:  http.StatusInternalServerError,
-		Error:   "internal_server_error",
+		Err:   "internal_server_error",
 	}
 }
 
@@ -36,6 +36,6 @@ func NewUnauthorizedError(message string) *RestErr {
 	return &RestErr{
 		Message: message,
 		Status:  http.StatusUnauthorized,
-		Error:   "unauthorized",
+		Err:   "unauthorized",
 	}
 }
