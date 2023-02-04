@@ -10,7 +10,7 @@ type Services struct {
 	FriendsService FriendsService
 }
 
-func NewServices(userService UserService, friendsService FriendsService) *Services {
+func New(userService UserService, friendsService FriendsService) *Services {
 	return &Services{
 		UserService:    userService,
 		FriendsService: friendsService,

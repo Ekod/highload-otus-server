@@ -28,12 +28,14 @@ func APIMux(cfg APIMuxConfig) *gin.Engine {
 	router.Use(cors.New(config))
 	router.Use(gin.Recovery())
 	router.GET("/ping", ping.Ping)
+
 	userHandlers := controllers.UserHandlers{
 		Service: cfg.services,
 	}
 	friendHandlers := controllers.FriendHandlers{
 		Service: cfg.services,
 	}
+
 	apiGroup := router.Group("/api")
 	{
 		apiGroup.POST("/login", userHandlers.LoginUser)

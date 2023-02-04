@@ -66,9 +66,9 @@ func run(log *zap.SugaredLogger) error {
 			DebugHost       string        `conf:"default:0.0.0.0:4000"`
 		}
 		DB struct {
-			User         string `conf:"default:mysql"`
+			User         string `conf:"default:root"`
 			Scheme       string `conf:"default:mysql"`
-			Password     string `conf:"default:mysql,mask"`
+			Password     string `conf:"default:secret,mask"`
 			Host         string `conf:"default:localhost"`
 			Name         string `conf:"default:mysql"`
 			MaxIdleConns int    `conf:"default:0"`
@@ -123,8 +123,6 @@ func run(log *zap.SugaredLogger) error {
 	}
 	log.Infow("startup", "config", out)
 
-	port := os.Getenv("PORT")
-
 	// =========================================================================
 	// Start API Service
 
@@ -137,9 +135,9 @@ func run(log *zap.SugaredLogger) error {
 
 	userRepo := repositories.NewUserRepository(db)
 	friendRepo := repositories.NewFriendRepository(db)
-	userService := user_service.NewService(userRepo)
-	friendService := friend_service.NewService(friendRepo)
-	serviceLayer := services.NewServices(userService, friendService)
+	userService := user_service.New(userRepo)
+	friendService := friend_service.New(friendRepo)
+	serviceLayer := services.New(userService, friendService)
 
 	// Construct the mux for the API calls.
 	apiMux := APIMux(APIMuxConfig{
@@ -164,7 +162,7 @@ func run(log *zap.SugaredLogger) error {
 	serverErrors := make(chan error, 1)
 
 	go func() {
-		serverErrors <- apiMux.Run(":" + port)
+		serverErrors <- api.ListenAndServe()
 	}()
 
 	// =========================================================================

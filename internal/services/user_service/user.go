@@ -20,7 +20,7 @@ type Service struct {
 	userRepository UserRepository
 }
 
-func NewService(userRepository UserRepository) *Service {
+func New(userRepository UserRepository) *Service {
 	return &Service{
 		userRepository: userRepository,
 	}

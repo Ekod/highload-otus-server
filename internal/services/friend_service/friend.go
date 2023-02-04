@@ -16,7 +16,7 @@ type Service struct {
 	friendRepository FriendRepository
 }
 
-func NewService(friendRepository FriendRepository) *Service {
+func New(friendRepository FriendRepository) *Service {
 	return &Service{
 		friendRepository: friendRepository,
 	}
