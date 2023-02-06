@@ -41,11 +41,11 @@ func Open(cfg Config) (*sql.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	//
-	//err = db.Ping()
-	//if err != nil {
-	//	return nil, err
-	//}
+
+	err = db.Ping()
+	if err != nil {
+		return nil, err
+	}
 
 	db.SetMaxIdleConns(cfg.MaxIdleConns)
 	db.SetMaxOpenConns(cfg.MaxOpenConns)
