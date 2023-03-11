@@ -6,27 +6,36 @@ import (
 	"github.com/Ekod/highload-otus/utils/errors"
 	"github.com/Ekod/highload-otus/utils/security"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"net/http"
 )
 
 type UserHandlers struct {
 	Service *services.Services
+	Logger  *zap.SugaredLogger
 }
 
 //RegisterUser регистрирует пользователя
 func (h *UserHandlers) RegisterUser(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	var user users.UserRequest
 	if err := c.ShouldBindJSON(&user); err != nil {
-		log.Error("Controllers_RegisterUser - Error parsing incoming JSON")
-		restErr := errors.NewBadRequestError("Invalid json request")
-		c.JSON(restErr.Status, restErr)
+		h.Logger.Error("[ERROR] Controllers_RegisterUser - Error parsing incoming JSON")
+
+		err := errors.NewHandlerBadRequestError("Invalid json request")
+		c.JSON(err.Status, err)
+
 		return
 	}
 
-	response, saveErr := h.Service.UserService.RegisterUser(&user)
-	if saveErr != nil {
-		c.JSON(saveErr.Status, saveErr)
+	response, err := h.Service.UserService.RegisterUser(ctx, &user)
+	if err != nil {
+		h.Logger.Error(err)
+
+		err := errors.ParseError(err)
+
+		c.JSON(err.Status, err)
 		return
 	}
 
@@ -35,9 +44,14 @@ func (h *UserHandlers) RegisterUser(c *gin.Context) {
 
 //GetUsers для получения всех пользователей
 func (h *UserHandlers) GetUsers(c *gin.Context) {
-	response, err := h.Service.UserService.GetUsers()
+	ctx := c.Request.Context()
+
+	response, err := h.Service.UserService.GetUsers(ctx)
 	if err != nil {
-		log.Error(err)
+		h.Logger.Error(err)
+
+		err := errors.ParseError(err)
+
 		c.JSON(err.Status, err)
 		return
 	}
@@ -47,13 +61,24 @@ func (h *UserHandlers) GetUsers(c *gin.Context) {
 
 //GetCurrentUser для получения инфы по пользователю
 func (h *UserHandlers) GetCurrentUser(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	userId, err := security.GetUserIdFromToken(c)
 	if err != nil {
+		h.Logger.Error(err)
+
+		err := errors.ParseError(err)
+
 		c.JSON(err.Status, err)
 		return
 	}
-	response, err := h.Service.UserService.GetCurrentUser(userId)
+
+	response, err := h.Service.UserService.GetCurrentUser(ctx, userId)
 	if err != nil {
+		h.Logger.Error(err)
+
+		err := errors.ParseError(err)
+
 		c.JSON(err.Status, err)
 		return
 	}
@@ -63,17 +88,25 @@ func (h *UserHandlers) GetCurrentUser(c *gin.Context) {
 
 //LoginUser логинит пользователя
 func (h *UserHandlers) LoginUser(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	var user users.UserRequest
 	if err := c.ShouldBindJSON(&user); err != nil {
-		log.Error("Controllers_LoginUser - Error parsing incoming JSON")
-		restErr := errors.NewBadRequestError("Invalid json request")
-		c.JSON(restErr.Status, restErr)
+		h.Logger.Error("[ERROR] Controllers_LoginUser - Error parsing incoming JSON")
+
+		err := errors.NewHandlerBadRequestError("Invalid json request")
+		c.JSON(err.Status, err)
+
 		return
 	}
 
-	response, loginErr := h.Service.UserService.LoginUser(&user)
-	if loginErr != nil {
-		c.JSON(loginErr.Status, loginErr)
+	response, err := h.Service.UserService.LoginUser(ctx, &user)
+	if err != nil {
+		h.Logger.Error(err)
+
+		err := errors.ParseError(err)
+
+		c.JSON(err.Status, err)
 		return
 	}
 
@@ -81,12 +114,20 @@ func (h *UserHandlers) LoginUser(c *gin.Context) {
 }
 
 func (h *UserHandlers) GetUsersByFullName(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	firstName := c.Query("firstName")
 	lastName := c.Query("lastName")
-	response, err := h.Service.UserService.GetUsersByFullName(firstName, lastName)
+
+	response, err := h.Service.UserService.GetUsersByFullName(ctx, firstName, lastName)
 	if err != nil {
+		h.Logger.Error(err)
+
+		err := errors.ParseError(err)
+
 		c.JSON(err.Status, err)
 		return
 	}
+
 	c.JSON(http.StatusOK, response)
 }

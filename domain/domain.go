@@ -2,7 +2,7 @@ package domain
 
 //User доменная сущность
 type User struct {
-	Id        int64
+	Id        int
 	FirstName string
 	LastName  string
 	Age       int
@@ -11,5 +11,4 @@ type User struct {
 	City      string
 	Email     string
 	Password  string
-	Token     string
 }

@@ -1,8 +1,8 @@
 package services
 
 import (
+	"context"
 	"github.com/Ekod/highload-otus/domain/users"
-	"github.com/Ekod/highload-otus/utils/errors"
 )
 
 type Services struct {
@@ -18,15 +18,15 @@ func New(userService UserService, friendsService FriendsService) *Services {
 }
 
 type UserService interface {
-	LoginUser(user *users.UserRequest) (map[string]interface{}, *errors.RestErr)
-	RegisterUser(user *users.UserRequest) (map[string]interface{}, *errors.RestErr)
-	GetUsers() (map[string]interface{}, *errors.RestErr)
-	GetCurrentUser(userId int64) (map[string]interface{}, *errors.RestErr)
-	GetUsersByFullName(firstName, lastName string) (map[string][]users.ResponseUser, *errors.RestErr)
+	LoginUser(ctx context.Context, user *users.UserRequest) (*users.UserResponse, error)
+	RegisterUser(ctx context.Context, user *users.UserRequest) (*users.UserResponse, error)
+	GetUsers(ctx context.Context) ([]users.UserResponse, error)
+	GetCurrentUser(ctx context.Context, userId int) (*users.UserResponse, error)
+	GetUsersByFullName(ctx context.Context, firstName, lastName string) ([]users.UserResponse, error)
 }
 
 type FriendsService interface {
-	GetFriends(userId int64) (map[string]interface{}, *errors.RestErr)
-	MakeFriends(userId int64, friend *users.UserFriend) (map[string]interface{}, *errors.RestErr)
-	RemoveFriend(userId int64, friendId int64) (map[string]interface{}, *errors.RestErr)
+	GetFriends(ctx context.Context, userId int) ([]users.UserFriend, error)
+	MakeFriends(ctx context.Context, userId int, friendID int) (int, error)
+	RemoveFriend(ctx context.Context, userId int, friendId int) error
 }

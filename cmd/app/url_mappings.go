@@ -31,21 +31,28 @@ func APIMux(cfg APIMuxConfig) *gin.Engine {
 
 	userHandlers := controllers.UserHandlers{
 		Service: cfg.services,
+		Logger:  cfg.Log,
 	}
+
 	friendHandlers := controllers.FriendHandlers{
 		Service: cfg.services,
+		Logger:  cfg.Log,
+	}
+
+	middleware := middlewares.Middleware{
+		Logger: cfg.Log,
 	}
 
 	apiGroup := router.Group("/api")
 	{
 		apiGroup.POST("/login", userHandlers.LoginUser)
 		apiGroup.POST("/register", userHandlers.RegisterUser)
-		apiGroup.GET("/users", middlewares.CheckToken, userHandlers.GetUsers)
-		apiGroup.GET("/info", middlewares.CheckToken, userHandlers.GetCurrentUser)
-		apiGroup.GET("/search-users", middlewares.CheckToken, userHandlers.GetUsersByFullName)
-		apiGroup.GET("/friends", middlewares.CheckToken, friendHandlers.GetFriends)
-		apiGroup.POST("/make-friends", middlewares.CheckToken, friendHandlers.MakeFriends)
-		apiGroup.DELETE("/remove-friend_service/:id", middlewares.CheckToken, friendHandlers.RemoveFriend)
+		apiGroup.GET("/users", middleware.CheckToken, userHandlers.GetUsers)
+		apiGroup.GET("/info", middleware.CheckToken, userHandlers.GetCurrentUser)
+		apiGroup.GET("/search-users", middleware.CheckToken, userHandlers.GetUsersByFullName)
+		apiGroup.GET("/friends", middleware.CheckToken, friendHandlers.GetFriends)
+		apiGroup.POST("/make-friends", middleware.CheckToken, friendHandlers.MakeFriends)
+		apiGroup.DELETE("/remove-friend_service/:id", middleware.CheckToken, friendHandlers.RemoveFriend)
 	}
 
 	return router

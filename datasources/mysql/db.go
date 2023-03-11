@@ -20,22 +20,7 @@ type Config struct {
 
 // Open knows how to open a database connection based on the configuration.
 func Open(cfg Config) (*sql.DB, error) {
-	//sslMode := "require"
-	//if cfg.DisableTLS {
-	//	sslMode = "disable"
-	//}
-
-	//q := make(url.Values)
-	//q.Set("sslmode", sslMode)
-	//q.Set("timezone", "utc")
 	dataSource := fmt.Sprintf("%s:%s@tcp(%s)/%s", cfg.User, cfg.Password, cfg.Host, cfg.Scheme)
-	//u := url.URL{
-	//	Scheme:   "postgres",
-	//	User:     url.UserPassword(cfg.User, cfg.Password),
-	//	Host:     cfg.Host,
-	//	Path:     cfg.Name,
-	//	RawQuery: q.Encode(),
-	//}
 
 	db, err := sql.Open("mysql", dataSource)
 	if err != nil {

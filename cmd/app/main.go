@@ -67,10 +67,10 @@ func run(log *zap.SugaredLogger) error {
 		}
 		DB struct {
 			User         string `conf:"default:root"`
-			Scheme       string `conf:"default:mysql"`
-			Password     string `conf:"default:secret,mask"`
+			Scheme       string `conf:"default:social"`
+			Password     string `conf:"default:password,mask"`
 			Host         string `conf:"default:localhost"`
-			Name         string `conf:"default:mysql"`
+			Name         string `conf:"default:social"`
 			MaxIdleConns int    `conf:"default:0"`
 			MaxOpenConns int    `conf:"default:0"`
 			DisableTLS   bool   `conf:"default:true"`

@@ -1,15 +1,14 @@
 package friend_service
 
 import (
+	"context"
 	"github.com/Ekod/highload-otus/domain/users"
-	"github.com/Ekod/highload-otus/utils/errors"
-	"github.com/Ekod/highload-otus/utils/response"
 )
 
 type FriendRepository interface {
-	GetFriends(userId int64) ([]users.UserFriend, *errors.RestErr)
-	MakeFriends(int64, *users.UserFriend) *errors.RestErr
-	RemoveFriend(int64, int64) *errors.RestErr
+	GetFriends(context.Context, int) ([]users.UserFriend, error)
+	MakeFriends(context.Context, int, int) error
+	RemoveFriend(context.Context, int, int) error
 }
 
 type Service struct {
@@ -22,33 +21,29 @@ func New(friendRepository FriendRepository) *Service {
 	}
 }
 
-func (s *Service) RemoveFriend(userId int64, friendId int64) (map[string]interface{}, *errors.RestErr) {
-	err := s.friendRepository.RemoveFriend(userId, friendId)
+func (s *Service) RemoveFriend(ctx context.Context, userId int, friendId int) error {
+	err := s.friendRepository.RemoveFriend(ctx, userId, friendId)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return nil, nil
+	return nil
 }
 
-func (s *Service) MakeFriends(userId int64, friend *users.UserFriend) (map[string]interface{}, *errors.RestErr) {
-	err := s.friendRepository.MakeFriends(userId, friend)
+func (s *Service) MakeFriends(ctx context.Context, userId int, friendID int) (int, error) {
+	err := s.friendRepository.MakeFriends(ctx, userId, friendID)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	responseData := response.Data("friend_service", friend.Id)
-
-	return responseData, nil
+	return friendID, nil
 }
 
-func (s *Service) GetFriends(userId int64) (map[string]interface{}, *errors.RestErr) {
-	friendsList, err := s.friendRepository.GetFriends(userId)
+func (s *Service) GetFriends(ctx context.Context, userId int) ([]users.UserFriend, error) {
+	friendsList, err := s.friendRepository.GetFriends(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	responseData := response.Data("friends", friendsList)
-
-	return responseData, nil
+	return friendsList, nil
 }

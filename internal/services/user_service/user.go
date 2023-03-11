@@ -1,19 +1,18 @@
 package user_service
 
 import (
+	"context"
 	"github.com/Ekod/highload-otus/domain"
 	"github.com/Ekod/highload-otus/domain/users"
-	"github.com/Ekod/highload-otus/utils/errors"
-	"github.com/Ekod/highload-otus/utils/response"
 	"github.com/Ekod/highload-otus/utils/security"
 )
 
 type UserRepository interface {
-	GetUserByEmail(*users.UserRequest) (*domain.User, *errors.RestErr)
-	GetCurrentUser(int64) (*users.ResponseUser, *errors.RestErr)
-	GetUsers() ([]users.ResponseUser, *errors.RestErr)
-	SaveUser(*users.UserRequest) (int64, *errors.RestErr)
-	GetUsersByFullName(string, string) ([]users.ResponseUser, *errors.RestErr)
+	GetUserByEmail(context.Context, *users.UserRequest) (*domain.User, error)
+	GetCurrentUser(context.Context, int) (*users.UserResponse, error)
+	GetUsers(context.Context) ([]users.UserResponse, error)
+	SaveUser(context.Context, *users.UserRequest) (int, error)
+	GetUsersByFullName(context.Context, string, string) ([]users.UserResponse, error)
 }
 
 type Service struct {
@@ -26,12 +25,8 @@ func New(userRepository UserRepository) *Service {
 	}
 }
 
-func (s *Service) LoginUser(user *users.UserRequest) (map[string]interface{}, *errors.RestErr) {
-	if err := user.Validate(); err != nil {
-		return nil, err
-	}
-
-	foundUser, err := s.userRepository.GetUserByEmail(user)
+func (s *Service) LoginUser(ctx context.Context, user *users.UserRequest) (*users.UserResponse, error) {
+	foundUser, err := s.userRepository.GetUserByEmail(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +40,7 @@ func (s *Service) LoginUser(user *users.UserRequest) (map[string]interface{}, *e
 		return nil, err
 	}
 
-	responseUser := &users.ResponseUser{
+	responseUser := users.UserResponse{
 		FirstName: foundUser.FirstName,
 		LastName:  foundUser.LastName,
 		Email:     foundUser.Email,
@@ -55,15 +50,11 @@ func (s *Service) LoginUser(user *users.UserRequest) (map[string]interface{}, *e
 		Gender:    foundUser.Gender,
 		Token:     token,
 	}
-	responseData := response.Data("user_service", responseUser)
-	return responseData, nil
+
+	return &responseUser, nil
 }
 
-func (s *Service) RegisterUser(user *users.UserRequest) (map[string]interface{}, *errors.RestErr) {
-	if err := user.Validate(); err != nil {
-		return nil, err
-	}
-
+func (s *Service) RegisterUser(ctx context.Context, user *users.UserRequest) (*users.UserResponse, error) {
 	hp, err := security.HashPassword(user.Password)
 	if err != nil {
 		return nil, err
@@ -71,7 +62,7 @@ func (s *Service) RegisterUser(user *users.UserRequest) (map[string]interface{},
 
 	user.Password = hp
 
-	userId, err := s.userRepository.SaveUser(user)
+	userId, err := s.userRepository.SaveUser(ctx, user)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +72,7 @@ func (s *Service) RegisterUser(user *users.UserRequest) (map[string]interface{},
 		return nil, err
 	}
 
-	responseUser := &users.ResponseUser{
+	responseUser := users.UserResponse{
 		FirstName: user.FirstName,
 		LastName:  user.LastName,
 		Email:     user.Email,
@@ -92,41 +83,32 @@ func (s *Service) RegisterUser(user *users.UserRequest) (map[string]interface{},
 		Token:     token,
 	}
 
-	responseData := response.Data("user_service", responseUser)
-
-	return responseData, nil
+	return &responseUser, nil
 }
 
-func (s *Service) GetUsers() (map[string]interface{}, *errors.RestErr) {
-	usersList, err := s.userRepository.GetUsers()
+func (s *Service) GetUsers(ctx context.Context) ([]users.UserResponse, error) {
+	usersList, err := s.userRepository.GetUsers(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	responseData := response.Data("users", usersList)
-
-	return responseData, nil
+	return usersList, nil
 }
 
-func (s *Service) GetCurrentUser(userId int64) (map[string]interface{}, *errors.RestErr) {
-	user, err := s.userRepository.GetCurrentUser(userId)
+func (s *Service) GetCurrentUser(ctx context.Context, userId int) (*users.UserResponse, error) {
+	user, err := s.userRepository.GetCurrentUser(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	responseData := response.Data("user_service", user)
-
-	return responseData, nil
+	return user, nil
 }
 
-func (s *Service) GetUsersByFullName(firstName, lastName string) (map[string][]users.ResponseUser, *errors.RestErr) {
-	friendsList, err := s.userRepository.GetUsersByFullName(firstName, lastName)
+func (s *Service) GetUsersByFullName(ctx context.Context, firstName, lastName string) ([]users.UserResponse, error) {
+	friendsList, err := s.userRepository.GetUsersByFullName(ctx, firstName, lastName)
 	if err != nil {
 		return nil, err
 	}
 
-	responseData := make(map[string][]users.ResponseUser)
-	responseData["users"] = friendsList
-
-	return responseData, nil
+	return friendsList, nil
 }

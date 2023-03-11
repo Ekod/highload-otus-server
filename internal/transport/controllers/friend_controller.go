@@ -1,49 +1,69 @@
 package controllers
 
 import (
-	"github.com/Ekod/highload-otus/domain/users"
 	"github.com/Ekod/highload-otus/internal/transport/services"
 	"github.com/Ekod/highload-otus/utils/errors"
 	"github.com/Ekod/highload-otus/utils/security"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 )
 
 type FriendHandlers struct {
 	Service *services.Services
+	Logger  *zap.SugaredLogger
 }
 
 func (h *FriendHandlers) RemoveFriend(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	userId, err := security.GetUserIdFromToken(c)
 	if err != nil {
+		h.Logger.Error(err)
+
+		err := errors.ParseError(err)
+
 		c.JSON(err.Status, err)
 		return
 	}
+
 	friendId := c.Param("id")
-	var err2 error
-	parsedFriendId, err2 := strconv.Atoi(friendId)
-	if err2 != nil {
-		log.Error("Controllers_RemoveFriend - Error parsing incoming JSON")
-		restErr := errors.NewBadRequestError("Invalid params")
-		c.JSON(restErr.Status, restErr)
+
+	parsedFriendId, err := strconv.Atoi(friendId)
+	if err != nil {
+		h.Logger.Error("[ERROR] Controllers_RemoveFriend - Error parsing incoming JSON")
+
+		err := errors.NewHandlerBadRequestError("Invalid params")
+		c.JSON(err.Status, err)
+
 		return
 	}
-	convertedFriendId := int64(parsedFriendId)
 
-	response, err := h.Service.FriendsService.RemoveFriend(userId, convertedFriendId)
-	c.JSON(http.StatusOK, response)
+	err = h.Service.FriendsService.RemoveFriend(ctx, userId, parsedFriendId)
+
+	c.Status(http.StatusOK)
 }
 
 func (h *FriendHandlers) GetFriends(c *gin.Context) {
+	ctx := c.Request.Context()
+
 	userId, err := security.GetUserIdFromToken(c)
 	if err != nil {
+		h.Logger.Error(err)
+
+		err := errors.ParseError(err)
+
 		c.JSON(err.Status, err)
 		return
 	}
-	response, err := h.Service.FriendsService.GetFriends(userId)
+
+	response, err := h.Service.FriendsService.GetFriends(ctx, userId)
 	if err != nil {
+		h.Logger.Error(err)
+
+		err := errors.ParseError(err)
+
 		c.JSON(err.Status, err)
 		return
 	}
@@ -52,20 +72,34 @@ func (h *FriendHandlers) GetFriends(c *gin.Context) {
 }
 
 func (h *FriendHandlers) MakeFriends(c *gin.Context) {
-	var friend users.UserFriend
-	if err := c.ShouldBindJSON(&friend); err != nil {
-		log.Error("Controllers_RegisterUser - Error parsing incoming JSON")
-		restErr := errors.NewBadRequestError("Invalid json request")
-		c.JSON(restErr.Status, restErr)
+	ctx := c.Request.Context()
+
+	var friendID int
+	if err := c.ShouldBindJSON(&friendID); err != nil {
+		h.Logger.Error("[ERROR] Controllers_RegisterUser - Error parsing incoming JSON")
+
+		err := errors.NewHandlerBadRequestError("Invalid json request")
+		c.JSON(err.Status, err)
+
 		return
 	}
+
 	userId, err := security.GetUserIdFromToken(c)
 	if err != nil {
+		h.Logger.Error(err)
+
+		err := errors.ParseError(err)
+
 		c.JSON(err.Status, err)
 		return
 	}
-	response, err := h.Service.FriendsService.MakeFriends(userId, &friend)
+
+	response, err := h.Service.FriendsService.MakeFriends(ctx, userId, friendID)
 	if err != nil {
+		h.Logger.Error(err)
+
+		err := errors.ParseError(err)
+
 		c.JSON(err.Status, err)
 		return
 	}
